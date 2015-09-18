@@ -8,12 +8,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.example.zbyszek.watapi.models.Comment;
+import com.example.zbyszek.watapi.network.CommentsRequest;
+import com.example.zbyszek.watapi.network.InternetFragment;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends InternetFragment {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -21,6 +28,7 @@ public class HomeFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
 
     private RecyclerView recyclerView;
+    private CommentAdapter commentAdapter;
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -38,13 +46,34 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        CommentsRequest commentsRequest = new CommentsRequest();
+
+        spiceManager.execute(commentsRequest, new RequestListener<Comment.List>() {
+            @Override
+            public void onRequestFailure(SpiceException spiceException) {
+                Toast.makeText(getActivity(), "Jest błąd", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onRequestSuccess(Comment.List comments) {
+                commentAdapter.addNewComments(comments);
+            }
+        });
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home, container, false);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recycleView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter();
+        commentAdapter = new CommentAdapter();
+
+        recyclerView.setAdapter(commentAdapter);
 
         return rootView;
     }

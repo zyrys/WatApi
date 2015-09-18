@@ -102,7 +102,6 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.action_about) {
 
             Intent intent = new Intent(this, About.class);
-
             startActivity(intent);
             return true;
         } else if (id == R.id.action_search){
